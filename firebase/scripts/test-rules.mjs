@@ -10,7 +10,9 @@ if (existsSync(base)) {
   const jdk = readdirSync(base).filter((d) => d.startsWith('jdk-21')).sort().pop();
   if (jdk) {
     env.JAVA_HOME = `${base}/${jdk}`;
-    env.PATH = `${env.JAVA_HOME}/bin${process.platform === 'win32' ? ';' : ':'}${env.PATH}`;
+    // Su Windows la variabile si chiama spesso "Path": va aggiornata quella esistente.
+    const chiave = Object.keys(env).find((k) => k.toUpperCase() === 'PATH') ?? 'PATH';
+    env[chiave] = `${env.JAVA_HOME}/bin${process.platform === 'win32' ? ';' : ':'}${env[chiave] ?? ''}`;
   }
 }
 
