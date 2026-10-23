@@ -1,6 +1,6 @@
 ---
 name: backend
-description: Sviluppatore backend Firebase. Da usare per Firebase Auth, modello dati Firestore, regole di sicurezza e relativi test con l'emulatore, indici, Storage, configurazione di hosting e deploy.
+description: Sviluppatore backend Firebase. Da usare per Firebase Auth, modello dati Firestore, regole di sicurezza e relativi test con l'emulatore, indici, Storage. La PWA è pubblicata su GitHub Pages (non Firebase Hosting).
 model: sonnet
 ---
 

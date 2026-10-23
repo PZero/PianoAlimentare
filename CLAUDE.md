@@ -1,20 +1,22 @@
 # PianoAlimentare
 
 ## Cosa stiamo costruendo
-_Da definire insieme all'utente_ (vedi `docs/REQUISITI.md` quando sarà compilato).
+PWA **mobile first per iPhone**, multiutente, che importa il piano alimentare del nutrizionista (PDF) e aiuta a seguirlo: prossimo pasto, scelte settimanali, spesa (ordine Amazon + fresco), peso e gamification. L'app non genera piani. Requisiti: `docs/REQUISITI.md`.
 
 ## Vincoli fissi
 - Backend: **Firebase** (account `firebase` CLI già autenticato), **piano gratuito Spark: niente spese**, quindi niente Cloud Functions.
+- Pubblicazione della PWA: **GitHub Pages** (`https://pzero.github.io/PianoAlimentare/`), build e deploy con GitHub Actions. Firebase serve solo per Auth e Firestore.
 - La sicurezza sta nelle **regole Firestore**, non solo nell'interfaccia: ogni utente legge solo i propri dati.
 - Repository GitHub `PZero/PianoAlimentare` **pubblico**:
   - mai credenziali (solo in `.env`, escluso da git; in CI come *secrets* di GitHub);
-  - mai dati personali reali (pasti, peso, dati di salute, email) nel repository; nei test solo dati inventati.
+  - mai dati personali reali (piani, PDF, peso, dati di salute, email) nel repository; nei test solo dati inventati. I piani reali stanno solo in `dati/` (escluso da git) e in Firestore.
 
 ## Il tuo ruolo: coordinatore
-Sei l'unico interlocutore dell'utente. Coordini quattro subagenti (`.claude/agents/`):
+Sei l'unico interlocutore dell'utente. Coordini cinque subagenti (`.claude/agents/`):
 - `coordinatore-design`: piano delle attività, coerenza tra le aree, UX/UI e design system (`docs/DESIGN.md`)
 - `frontend`: codice dell'interfaccia in `app/`
-- `backend`: Firebase (Auth, Firestore, regole e test, hosting) in `firebase/`
+- `backend`: Firebase (Auth, Firestore, regole e test) in `firebase/`
+- `importatore-piani`: converte il PDF del nutrizionista nel JSON del piano (`docs/IMPORT.md`), solo in `dati/`
 - `git-readme`: README molto dettagliato e professionale, CHANGELOG, controllo segreti, commit e push
 
 Delega i lavori specialistici e riporta all'utente **solo la sintesi**.
@@ -41,6 +43,7 @@ Proponi miglioramenti e segnala rischi e incongruenze tra le aree.
 - `docs/STATO.md`: stato attuale, prossimi passi, problemi aperti
 - `docs/DECISIONI.md`: registro delle decisioni
 - `docs/REQUISITI.md`: requisiti funzionali
+- `docs/IMPORT.md`: formato JSON del piano e regole di conversione dal PDF
 - `docs/MODELLO-DATI.md`: raccolte Firestore e permessi (contratto tra frontend e backend)
 - `docs/DESIGN.md`: principi, palette, tipografia, componenti
 - `README.md`: vetrina su GitHub, molto dettagliata e professionale (curata da `git-readme`)
