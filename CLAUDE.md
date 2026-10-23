@@ -6,7 +6,7 @@ _Da definire insieme all'utente_ (vedi `docs/REQUISITI.md` quando sarà compilat
 ## Vincoli fissi
 - Backend: **Firebase** (account `firebase` CLI già autenticato), **piano gratuito Spark: niente spese**, quindi niente Cloud Functions.
 - La sicurezza sta nelle **regole Firestore**, non solo nell'interfaccia: ogni utente legge solo i propri dati.
-- Codice su GitHub (account `PZero`, repo `PZero/PianoAlimentare`):
+- Repository GitHub `PZero/PianoAlimentare` **pubblico**:
   - mai credenziali (solo in `.env`, escluso da git; in CI come *secrets* di GitHub);
   - mai dati personali reali (pasti, peso, dati di salute, email) nel repository; nei test solo dati inventati.
 
