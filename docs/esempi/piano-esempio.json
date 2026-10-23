@@ -1,0 +1,277 @@
+{
+  "versione": 1,
+  "titolo": "Piano di esempio (inventato)",
+  "dataVisita": "2026-01-15",
+  "pasti": [
+    { "id": "pre-allenamento", "nome": "Pre-allenamento", "facoltativo": true },
+    { "id": "colazione", "nome": "Colazione" },
+    { "id": "pranzo", "nome": "Pranzo" },
+    { "id": "spuntino", "nome": "Spuntino" },
+    { "id": "cena", "nome": "Cena" }
+  ],
+  "settimana": {
+    "lun": {
+      "pre-allenamento": { "tipo": "scelta", "gruppi": ["pre-allenamento"] },
+      "colazione": { "tipo": "scelta", "gruppi": ["colazione-allenamento", "colazione-riposo"] },
+      "pranzo": { "tipo": "piatto", "piatto": "lun-pranzo" },
+      "spuntino": { "tipo": "piatto", "piatto": "smoothie-verde" },
+      "cena": { "tipo": "piatto", "piatto": "lun-cena" }
+    },
+    "mar": {
+      "pre-allenamento": { "tipo": "scelta", "gruppi": ["pre-allenamento"] },
+      "colazione": { "tipo": "scelta", "gruppi": ["colazione-allenamento", "colazione-riposo"] },
+      "pranzo": { "tipo": "piatto", "piatto": "mar-pranzo" },
+      "spuntino": { "tipo": "piatto", "piatto": "frutta-secca" },
+      "cena": { "tipo": "piatto", "piatto": "mar-cena" }
+    },
+    "mer": {
+      "pre-allenamento": { "tipo": "scelta", "gruppi": ["pre-allenamento"] },
+      "colazione": { "tipo": "scelta", "gruppi": ["colazione-allenamento", "colazione-riposo"] },
+      "pranzo": { "tipo": "piatto", "piatto": "lun-pranzo" },
+      "spuntino": { "tipo": "piatto", "piatto": "smoothie-verde" },
+      "cena": { "tipo": "piatto", "piatto": "mar-cena" }
+    },
+    "gio": {
+      "pre-allenamento": { "tipo": "scelta", "gruppi": ["pre-allenamento"] },
+      "colazione": { "tipo": "scelta", "gruppi": ["colazione-allenamento", "colazione-riposo"] },
+      "pranzo": { "tipo": "piatto", "piatto": "mar-pranzo" },
+      "spuntino": { "tipo": "piatto", "piatto": "frutta-secca" },
+      "cena": { "tipo": "piatto", "piatto": "lun-cena" }
+    },
+    "ven": {
+      "pre-allenamento": { "tipo": "scelta", "gruppi": ["pre-allenamento"] },
+      "colazione": { "tipo": "scelta", "gruppi": ["colazione-allenamento", "colazione-riposo"] },
+      "pranzo": { "tipo": "piatto", "piatto": "ven-pranzo" },
+      "spuntino": { "tipo": "piatto", "piatto": "smoothie-verde" },
+      "cena": { "tipo": "libero" }
+    },
+    "sab": {
+      "pre-allenamento": { "tipo": "scelta", "gruppi": ["pre-allenamento"] },
+      "colazione": { "tipo": "scelta", "gruppi": ["colazione-allenamento", "colazione-riposo"] },
+      "pranzo": { "tipo": "piatto", "piatto": "ven-pranzo" },
+      "spuntino": { "tipo": "digiuno" },
+      "cena": { "tipo": "piatto", "piatto": "sab-cena" }
+    },
+    "dom": {
+      "pre-allenamento": { "tipo": "scelta", "gruppi": ["pre-allenamento"] },
+      "colazione": { "tipo": "scelta", "gruppi": ["colazione-allenamento", "colazione-riposo"] },
+      "pranzo": { "tipo": "libero" },
+      "spuntino": { "tipo": "digiuno" },
+      "cena": { "tipo": "piatto", "piatto": "sab-cena" }
+    }
+  },
+  "gruppi": [
+    { "id": "pre-allenamento", "nome": "Pre-allenamento", "piatti": ["toast-marmellata", "shake-banana"] },
+    { "id": "colazione-allenamento", "nome": "Colazioni dopo l'allenamento", "piatti": ["omelette-spinaci", "porridge-mela"] },
+    { "id": "colazione-riposo", "nome": "Colazioni giorni di riposo", "piatti": ["yogurt-e-cereali", "pane-e-avocado"] }
+  ],
+  "piatti": {
+    "toast-marmellata": {
+      "nome": "Toast con marmellata",
+      "componenti": [
+        { "opzioni": [{ "alimento": "pane-integrale", "quantita": 2, "unita": "fetta" }] },
+        { "opzioni": [{ "alimento": "marmellata-albicocche", "quantita": 1, "unita": "cucchiaio" }] }
+      ]
+    },
+    "shake-banana": {
+      "nome": "Shake alla banana",
+      "componenti": [
+        { "opzioni": [{ "alimento": "banana", "quantita": 1, "unita": "pezzo" }] },
+        { "opzioni": [
+          { "alimento": "latte-di-avena", "quantita": 200, "unita": "mL" },
+          { "alimento": "latte-di-soia", "quantita": 200, "unita": "mL" }
+        ] },
+        { "opzioni": [{ "alimento": "cannella", "unita": "qb" }] }
+      ],
+      "preparazione": "Frulla tutto e servi subito."
+    },
+    "omelette-spinaci": {
+      "nome": "Omelette agli spinaci",
+      "componenti": [
+        { "opzioni": [{ "alimento": "uovo", "quantita": 2, "unita": "pezzo" }] },
+        { "opzioni": [{ "alimento": "spinaci-freschi", "quantita": 80, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "olio-evo", "quantita": 1, "unita": "cucchiaino" }] }
+      ],
+      "preparazione": "Cuoci in padella antiaderente a fuoco medio.",
+      "varianti": [
+        {
+          "nome": "Omelette di albumi con zucchine",
+          "componenti": [
+            { "opzioni": [{ "alimento": "albume-liquido", "quantita": 150, "unita": "g" }] },
+            { "opzioni": [{ "alimento": "zucchine", "quantita": 100, "unita": "g" }] }
+          ]
+        }
+      ]
+    },
+    "porridge-mela": {
+      "nome": "Porridge di avena e mela",
+      "componenti": [
+        { "opzioni": [{ "alimento": "fiocchi-avena", "quantita": 40, "unita": "g" }] },
+        { "opzioni": [
+          { "alimento": "latte-di-avena", "quantita": 150, "unita": "mL" },
+          { "alimento": "latte-di-soia", "quantita": 150, "unita": "mL" }
+        ] },
+        { "opzioni": [{ "alimento": "mela", "quantita": 1, "unita": "pezzo" }] },
+        { "opzioni": [{ "alimento": "miele", "quantita": 1, "unita": "cucchiaino" }] }
+      ]
+    },
+    "yogurt-e-cereali": {
+      "nome": "Yogurt con cereali",
+      "componenti": [
+        { "opzioni": [{ "alimento": "yogurt-di-soia", "quantita": 1, "unita": "vasetto" }] },
+        { "opzioni": [{ "alimento": "fiocchi-mais", "quantita": 30, "unita": "g" }] },
+        { "opzioni": [
+          { "alimento": "mirtilli", "quantita": 80, "unita": "g" },
+          { "alimento": "fragole", "quantita": 80, "unita": "g" }
+        ] }
+      ]
+    },
+    "pane-e-avocado": {
+      "nome": "Pane e avocado",
+      "componenti": [
+        { "opzioni": [{ "alimento": "pane-integrale", "quantitaMin": 1, "quantita": 2, "unita": "fetta" }] },
+        { "opzioni": [{ "alimento": "avocado", "quantita": 0.5, "unita": "pezzo" }] },
+        { "opzioni": [{ "alimento": "sale", "unita": "qb" }] }
+      ]
+    },
+    "lun-pranzo": {
+      "nome": "Insalata di legumi e tonno",
+      "componenti": [
+        { "opzioni": [
+          { "alimento": "ceci-cotti", "quantita": 150, "unita": "g" },
+          { "alimento": "fagioli-cotti", "quantita": 150, "unita": "g" }
+        ] },
+        { "opzioni": [{ "alimento": "tonno-naturale", "quantita": 60, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "pomodorini", "quantita": 100, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "olio-evo", "quantita": 1, "unita": "cucchiaio" }] }
+      ],
+      "preparazione": "Condisci con origano e succo di limone."
+    },
+    "mar-pranzo": {
+      "nome": "Riso con verdure e uovo",
+      "componenti": [
+        { "portata": 1, "opzioni": [{ "alimento": "riso-integrale", "quantita": 80, "unita": "g" }] },
+        { "portata": 1, "opzioni": [{ "alimento": "zucchine", "quantitaMin": 150, "quantita": 200, "unita": "g" }] },
+        { "portata": 2, "opzioni": [{ "alimento": "uovo", "quantita": 1, "unita": "pezzo" }] },
+        { "portata": 2, "opzioni": [{ "alimento": "olio-evo", "quantita": 1, "unita": "cucchiaio" }] }
+      ]
+    },
+    "ven-pranzo": {
+      "nome": "Piatto di pesce e verdure",
+      "componenti": [
+        { "opzioni": [
+          { "alimento": "merluzzo", "quantita": 150, "unita": "g" },
+          { "alimento": "orata", "quantita": 150, "unita": "g" }
+        ] },
+        { "opzioni": [{ "alimento": "spinaci-freschi", "quantita": 150, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "succo-di-limone", "unita": "qb" }] }
+      ]
+    },
+    "lun-cena": {
+      "nome": "Zuppa di lenticchie",
+      "componenti": [
+        { "opzioni": [{ "alimento": "lenticchie-cotte", "quantita": 200, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "carote", "quantita": 100, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "pane-integrale", "quantita": 1, "unita": "fetta" }] }
+      ]
+    },
+    "mar-cena": {
+      "nome": "Frittata con insalata",
+      "componenti": [
+        { "opzioni": [{ "alimento": "uovo", "quantita": 2, "unita": "pezzo" }] },
+        { "opzioni": [{ "alimento": "insalata-mista", "quantita": 1, "unita": "porzione" }] },
+        { "opzioni": [{ "alimento": "olio-evo", "quantita": 1, "unita": "cucchiaio" }] }
+      ],
+      "varianti": [
+        {
+          "nome": "Tofu alla piastra con insalata",
+          "componenti": [
+            { "opzioni": [{ "alimento": "tofu", "quantita": 150, "unita": "g" }] },
+            { "opzioni": [{ "alimento": "insalata-mista", "quantita": 1, "unita": "porzione" }] }
+          ]
+        }
+      ]
+    },
+    "sab-cena": {
+      "nome": "Pasta di legumi al pomodoro",
+      "componenti": [
+        { "opzioni": [{ "alimento": "pasta-di-legumi", "quantita": 80, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "passata-di-pomodoro", "quantita": 150, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "proteine-vegetali", "quantita": 20, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "basilico", "unita": "qb" }] }
+      ]
+    },
+    "smoothie-verde": {
+      "nome": "Smoothie verde",
+      "componenti": [
+        { "opzioni": [{ "alimento": "spinaci-freschi", "quantita": 50, "unita": "g" }] },
+        { "opzioni": [{ "alimento": "banana", "quantita": 1, "unita": "pezzo" }] },
+        { "opzioni": [{ "alimento": "acqua", "unita": "qb" }] }
+      ]
+    },
+    "frutta-secca": {
+      "nome": "Frutta secca e frutto",
+      "componenti": [
+        { "opzioni": [
+          { "alimento": "mandorle", "quantita": 20, "unita": "g" },
+          { "alimento": "noci", "quantita": 20, "unita": "g" }
+        ] },
+        { "opzioni": [{ "alimento": "mela", "quantita": 1, "unita": "pezzo" }] }
+      ]
+    }
+  },
+  "alimenti": {
+    "pane-integrale": { "nome": "Pane integrale", "canale": "amazon" },
+    "marmellata-albicocche": { "nome": "Marmellata di albicocche", "canale": "amazon" },
+    "banana": { "nome": "Banana", "canale": "fresco", "tag": ["frutta"] },
+    "latte-di-avena": { "nome": "Bevanda di avena", "canale": "amazon" },
+    "latte-di-soia": { "nome": "Bevanda di soia", "canale": "amazon" },
+    "cannella": { "nome": "Cannella", "canale": "base" },
+    "uovo": { "nome": "Uova", "canale": "fresco" },
+    "spinaci-freschi": { "nome": "Spinaci freschi", "canale": "fresco", "tag": ["verdura"] },
+    "olio-evo": { "nome": "Olio extravergine di oliva", "canale": "base" },
+    "albume-liquido": { "nome": "Albume liquido", "canale": "fresco" },
+    "zucchine": { "nome": "Zucchine", "canale": "fresco", "tag": ["verdura"] },
+    "fiocchi-avena": { "nome": "Fiocchi di avena", "canale": "amazon" },
+    "mela": { "nome": "Mela", "canale": "fresco", "tag": ["frutta"] },
+    "miele": { "nome": "Miele", "canale": "base" },
+    "yogurt-di-soia": { "nome": "Yogurt di soia", "canale": "amazon" },
+    "fiocchi-mais": { "nome": "Fiocchi di mais", "canale": "amazon" },
+    "mirtilli": { "nome": "Mirtilli", "canale": "fresco", "tag": ["frutta"] },
+    "fragole": { "nome": "Fragole", "canale": "fresco", "tag": ["frutta"] },
+    "avocado": { "nome": "Avocado", "canale": "fresco" },
+    "sale": { "nome": "Sale", "canale": "base" },
+    "ceci-cotti": { "nome": "Ceci cotti", "canale": "amazon", "tag": ["legumi"] },
+    "fagioli-cotti": { "nome": "Fagioli cotti", "canale": "amazon", "tag": ["legumi"] },
+    "lenticchie-cotte": { "nome": "Lenticchie cotte", "canale": "amazon", "tag": ["legumi"] },
+    "tonno-naturale": { "nome": "Tonno al naturale", "canale": "amazon" },
+    "pomodorini": { "nome": "Pomodorini", "canale": "fresco", "tag": ["verdura"] },
+    "riso-integrale": { "nome": "Riso integrale", "canale": "amazon" },
+    "merluzzo": { "nome": "Merluzzo", "canale": "fresco" },
+    "orata": { "nome": "Orata", "canale": "fresco" },
+    "succo-di-limone": { "nome": "Succo di limone", "canale": "base" },
+    "carote": { "nome": "Carote", "canale": "fresco", "tag": ["verdura"] },
+    "insalata-mista": { "nome": "Insalata mista", "canale": "fresco", "tag": ["verdura"] },
+    "tofu": { "nome": "Tofu", "canale": "fresco" },
+    "pasta-di-legumi": { "nome": "Pasta di legumi", "canale": "amazon" },
+    "passata-di-pomodoro": { "nome": "Passata di pomodoro", "canale": "amazon" },
+    "proteine-vegetali": { "nome": "Proteine vegetali in polvere", "canale": "esterno", "link": "https://esempio.invalid/proteine" },
+    "basilico": { "nome": "Basilico", "canale": "base" },
+    "acqua": { "nome": "Acqua", "canale": "base" },
+    "mandorle": { "nome": "Mandorle", "canale": "amazon" },
+    "noci": { "nome": "Noci", "canale": "amazon" }
+  },
+  "note": [
+    "Bevi almeno 2 L di acqua al giorno.",
+    "Il fine settimana la cena del sabato si ripete la domenica."
+  ],
+  "regole": [
+    {
+      "tipo": "varieta",
+      "pasto": "colazione",
+      "minDiversi": 3,
+      "giorni": 7,
+      "testo": "Scegli almeno 3 colazioni diverse nell'arco di 7 giorni."
+    }
+  ]
+}
