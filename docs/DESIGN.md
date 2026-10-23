@@ -1,120 +1,151 @@
 # Design
 
-_Curato dall'agente `coordinatore-design`. Versione per il primo prototipo._
+_Curato dall'agente `coordinatore-design`. Direzione approvata: **B · Editoriale** (rivista di cucina). Sostituisce la versione "a moduli" del primo prototipo._
 
-## Principi
-- **Mobile first, iPhone in Home**: una mano sola, azioni principali in basso, rispetto di `env(safe-area-inset-*)`.
-- **Una cosa in evidenza per schermata**: Oggi mostra il prossimo pasto, il resto sta sotto.
-- **Positivo e calmo**: verdi e toni naturali, nessun rosso aggressivo, nessuna colpevolizzazione (saltare un pasto è un'informazione, non un errore).
-- **Il colore non è mai l'unico segnale**: ogni stato ha anche icona e testo. Contrasto WCAG AA (4.5:1 testo, 3:1 componenti).
-- **Chiaro e scuro** automatici (`prefers-color-scheme`), stessi token.
+## 1. Principi editoriali
+- **Gerarchia tipografica prima di tutto**: la struttura nasce da occhiello (maiuscolo spaziato) > titolo serif > sottotitolo > testo. Niente card annidate, niente bordi pesanti: si separa con aria e filetti da 1 px.
+- **Aria**: margini laterali 20 px, almeno 32 px tra sezioni, righe ariose. Meno elementi per schermata; il resto sta dietro un tocco.
+- **Le illustrazioni sono protagoniste**: ogni piatto, stato vuoto e stato di attesa ha un disegno a tratto; sostituiscono icone-badge e riempitivi.
+- **Colore con parsimonia**: carta e inchiostro per l'80%, terracotta come unico accento d'azione e di "cibo", salvia per "fatto/ok". I colori semantici compaiono solo come piccolo segno (puntino, filetto, parola), mai come grandi campi.
+- **Mobile first, iPhone in Home**: una mano sola, azioni in basso, `env(safe-area-inset-*)`.
+- **Calmo e non colpevolizzante**: saltare un pasto è un'informazione. Nessun rosso aggressivo.
+- **Il colore non è mai l'unico segnale**: ogni stato ha anche parola o forma. Contrasto WCAG AA (4.5:1 testo, 3:1 elementi grafici e componenti).
+- **Chiaro e scuro** automatici (`prefers-color-scheme`), stessi token. Area tappabile minima 44x44.
 
-## Palette (variabili CSS)
-Ogni stato ha un colore del testo (`--colore-X`) e uno sfondo tenue (`--colore-X-sfondo`). Coppie verificate AA.
+## 2. Palette (variabili CSS)
+Nota AA: `#888780` e `#D85A30` su carta NON raggiungono 4.5:1 come testo piccolo: servono solo per tratti, filetti e testi grandi (>= 20 px). Per il testo piccolo si usano `--c-testo-2` e `--c-terracotta-testo`. Verificare le coppie con un contrast checker prima del rilascio.
 
 ```css
 :root {
-  --colore-sfondo: #F6F8F4;        --colore-superficie: #FFFFFF;
-  --colore-superficie-2: #EEF2EC;  --colore-bordo: #D5DDD3;
-  --colore-testo: #1B2420;         --colore-testo-2: #55615A;
-  --colore-primario: #1F7A4D;      --colore-su-primario: #FFFFFF;
-  --colore-focus: #1D5FA8;         --colore-errore: #B3261E;
+  --c-carta: #FBF8F3;        --c-carta-2: #F3EEE5;     /* sfondo; fasce/sheet */
+  --c-testo: #2C2C2A;        --c-testo-2: #6B6A64;     /* testo piccolo secondario */
+  --c-tenue: #888780;        --c-filetto: #D3D1C7;     /* solo grafica e testi grandi */
+  --c-terracotta: #D85A30;   --c-terracotta-testo: #B2441F;  /* tratti / testo piccolo */
+  --c-salvia: #639922;       --c-salvia-testo: #4B7A1A;
+  --c-inchiostro: #2C2C2A;   --c-su-inchiostro: #FBF8F3;     /* pulsante pieno */
+  --c-focus: #3F6A95;        --c-errore: #A5504F;
 
-  --colore-fatto: #1F7A4D;      --colore-fatto-sfondo: #E1F3E8;
-  --colore-sostituito: #1D5FA8; --colore-sostituito-sfondo: #E2EEFA;
-  --colore-saltato: #A32B45;    --colore-saltato-sfondo: #FCE8EC;
-  --colore-libero: #7A3E9D;     --colore-libero-sfondo: #F0E7F7;
-  --colore-digiuno: #475569;    --colore-digiuno-sfondo: #E8ECF1;
-  --colore-scelta: #A8480B;     --colore-scelta-sfondo: #FFEADB;
-
-  --colore-amazon: #8A5A00;     --colore-amazon-sfondo: #FFF0CF;
-  --colore-fresco: #0F766E;     --colore-fresco-sfondo: #DCF2EF;
-  --colore-esterno: #4A4F9E;    --colore-esterno-sfondo: #E8E9F8;
+  /* semantici: testo/segno + sfondo tenue (usato di rado) */
+  --c-fatto: #4B7A1A;       --c-fatto-bg: #EAF0DE;
+  --c-sostituito: #4F6D8A;  --c-sostituito-bg: #E6ECF1;
+  --c-saltato: #A5504F;     --c-saltato-bg: #F5E6E3;
+  --c-libero: #7C5A86;      --c-libero-bg: #EFE7F0;
+  --c-digiuno: #5E6670;     --c-digiuno-bg: #EAEAE7;
+  --c-scelta: #B2441F;      --c-scelta-bg: #F8E7DE;
+  /* canali spesa */
+  --c-amazon: #8A6314;      --c-amazon-bg: #F5EBD0;
+  --c-fresco: #3E7A6E;      --c-fresco-bg: #E0EDE9;
+  --c-esterno: #5C6091;     --c-esterno-bg: #E7E8F1;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
-    --colore-sfondo: #0E1411;        --colore-superficie: #172019;
-    --colore-superficie-2: #1F2A22;  --colore-bordo: #2F3C33;
-    --colore-testo: #E8EFEA;         --colore-testo-2: #A5B3A9;
-    --colore-primario: #5FD08F;      --colore-su-primario: #07170E;
-    --colore-focus: #8EC1F5;         --colore-errore: #FFB4AB;
+  :root {                      /* "carta notte" */
+    --c-carta: #1C1B19;        --c-carta-2: #262522;
+    --c-testo: #F1EBDD;        --c-testo-2: #B3AFA3;
+    --c-tenue: #8C887D;        --c-filetto: #3A3833;
+    --c-terracotta: #E8754D;   --c-terracotta-testo: #F09A78;
+    --c-salvia: #8DB65A;       --c-salvia-testo: #A6CB74;
+    --c-inchiostro: #F1EBDD;   --c-su-inchiostro: #1C1B19;
+    --c-focus: #9CC0E4;        --c-errore: #E59A96;
 
-    --colore-fatto: #7BDDA2;      --colore-fatto-sfondo: #17382A;
-    --colore-sostituito: #8EC1F5; --colore-sostituito-sfondo: #172F47;
-    --colore-saltato: #FFA9BA;    --colore-saltato-sfondo: #44202B;
-    --colore-libero: #D9B3F0;     --colore-libero-sfondo: #35223F;
-    --colore-digiuno: #B8C4D4;    --colore-digiuno-sfondo: #263140;
-    --colore-scelta: #FFB98A;     --colore-scelta-sfondo: #432915;
-
-    --colore-amazon: #F5C96A;     --colore-amazon-sfondo: #3F2F0C;
-    --colore-fresco: #6FDAD0;     --colore-fresco-sfondo: #12363A;
-    --colore-esterno: #B3B7F2;    --colore-esterno-sfondo: #25274A;
+    --c-fatto: #A6CB74;       --c-fatto-bg: #2A3320;
+    --c-sostituito: #9DB7D1;  --c-sostituito-bg: #232C36;
+    --c-saltato: #E59A96;     --c-saltato-bg: #3A2523;
+    --c-libero: #C9A9D3;      --c-libero-bg: #33283A;
+    --c-digiuno: #A9B1BB;     --c-digiuno-bg: #2B2D30;
+    --c-scelta: #F09A78;      --c-scelta-bg: #3B2619;
+    --c-amazon: #E0B965;      --c-amazon-bg: #382D14;
+    --c-fresco: #86C4B6;      --c-fresco-bg: #1F3330;
+    --c-esterno: #AEB2E0;     --c-esterno-bg: #2A2C42;
   }
 }
 ```
-Il tema segue il sistema; in seguito si potrà aggiungere un'opzione manuale in Profilo.
+Il tema segue il sistema; opzione manuale in Profilo in seguito. In scuro niente ombre: si usano filetti.
 
-## Tipografia, spaziature, forme
-- Font: `-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif`. Numeri tabulari per grammature e peso (`font-variant-numeric: tabular-nums`).
-- Scala (rem, base 16 px, rispetta Dynamic Type): `--testo-xs` 0.75 · `--testo-sm` 0.875 · `--testo-base` 1 · `--testo-lg` 1.125 · `--testo-xl` 1.375 (titolo pasto) · `--testo-2xl` 1.75 (titolo schermata). Pesi 400, 600, 700. Interlinea 1.4.
-- Spazi (4 px): `--spazio-1` 4 · 2: 8 · 3: 12 · 4: 16 · 5: 24 · 6: 32. Margine laterale schermata 16 px.
-- Raggi: `--raggio-s` 8 (chip, input) · `--raggio-m` 14 (card) · `--raggio-l` 22 (sheet) · pill 999.
-- Ombre (solo chiaro; in scuro si usa il bordo): `--ombra-1: 0 1px 2px rgb(20 40 30 / 8%)` · `--ombra-2: 0 6px 20px rgb(20 40 30 / 12%)`.
-- Area tappabile minima 44×44 px. Focus visibile: contorno 2 px `--colore-focus`.
-- Animazioni brevi (150-200 ms), disattivate con `prefers-reduced-motion`.
+## 3. Tipografia, spaziature, forme
+- **Serif (titoli e nomi dei piatti)**: **Fraunces** (Google Fonts, variabile, `opsz` automatico; carattere caldo da rivista), caricata con `display=swap`, sottoinsieme latino e peso 400/600; **self-host** in `app/` per la PWA offline. Fallback: `Georgia, "Times New Roman", serif`.
+- **Sans (testo, etichette, numeri)**: `-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif`. Numeri con `font-variant-numeric: tabular-nums` (grammature, peso, date).
+- Scala (rem, base 16 px, rispetta Dynamic Type):
 
-## Componenti
-- **Card pasto**: superficie, raggio m, nome del pasto (small caps), nome del piatto (`xl`), badge stato in alto a destra, ingredienti, azioni in fondo. Variante "in evidenza": bordo 2 px `--colore-primario`, ombra-2, sfondo superficie con leggera tinta.
-- **Lista ingredienti**: riga = nome a sinistra, grammatura a destra (tabulare, es. `180 g`). Componente con alternative: riga con l'opzione scelta e link "cambia" (apre lo sheet). Intervalli come "100-130 g". Nessuna scelta fatta: riga con badge "scelta da fare".
-- **Segmented control**: 2-4 opzioni brevi (es. ceci / lenticchie). Altezza 44, voce attiva su `--colore-primario`.
-- **Bottom sheet**: per 5+ opzioni o testi lunghi (gruppi di colazioni). Maniglia, titolo, elenco di righe radio a tutta larghezza, pulsante "Conferma" fisso; si chiude con trascinamento o sfondo. Padding inferiore = safe area.
-- **Badge stato** (pill, icona + testo): Fatto ✓, Sostituito ⇄, Saltato –, Libero ☺, Digiuno ○, Da scegliere !. Canali spesa: Amazon, Fresco, Esterno (stessa forma).
-- **Pulsanti**: primario (pieno `--colore-primario`), secondario (contorno), testo; altezza 48, larghezza piena nelle azioni principali. Distruttivo (blocca utente) solo con conferma.
-- **Barra di navigazione in basso**: 5 voci (icona + etichetta), altezza 56 + safe area, sfondo superficie con sfumatura/blur, voce attiva in `--colore-primario`. Barra superiore minimale con titolo grande che si riduce allo scorrimento.
-- **Stati**: *vuoto* = illustrazione semplice, frase amichevole, un'azione ("Importa il tuo piano"); *caricamento* = scheletri grigi delle card (no spinner a tutto schermo); *errore* = messaggio chiaro in `--colore-errore` con icona e "Riprova", mai codici tecnici. *Offline*: banner discreto, dati in cache leggibili.
-- **Toast**: conferma breve in basso sopra la barra, con "Annulla" per 5 s dopo fatto/saltato.
+| Ruolo | Famiglia | Dim. | Peso | Note |
+|---|---|---|---|---|
+| Occhiello | sans | 0.6875 (11 px) | 600 | MAIUSCOLO, `letter-spacing: .14em`, `--c-testo-2` |
+| Titolo pagina | serif | 2.25 (36 px) | 400 | interlinea 1.1, `letter-spacing: -.01em` |
+| Titolo sezione/giorno | serif | 1.5 (24 px) | 400 | |
+| Nome piatto | serif | 1.375 (22 px) | 600 | interlinea 1.2 |
+| Testo | sans | 1 (16 px) | 400 | interlinea 1.45 |
+| Ingrediente / quantità | sans | 0.9375 (15 px) | 400 / 500 | quantità tabulare |
+| Etichette, pulsanti | sans | 0.875 (14 px) | 600 | |
+| Nota | sans | 0.8125 (13 px) | 400 | `--c-testo-2` |
 
-## Schermate del prototipo
+- Spazi (4 px): 4 · 8 · 12 · 16 · 20 · 32 · 48. Margine laterale 20 px; larghezza massima testo 34 rem su schermi larghi.
+- Forme: angoli quasi assenti; pulsanti a **pillola** (999), sheet con raggio 22 in alto, immagini senza cornice. Filetti 1 px `--c-filetto`.
+- Animazioni 150-200 ms, dissolvenze e scorrimenti; disattivate con `prefers-reduced-motion`. Focus: contorno 2 px `--c-focus`.
 
-### Login e attesa approvazione
-- Scopo: entrare con Google. Contenuti: logo, una riga di descrizione, pulsante unico "Continua con Google" (secondo le linee guida Google), nota privacy breve.
-- Stati: caricamento sul pulsante; errore (popup chiuso, rete) sotto il pulsante.
-- **In attesa**: icona orologio, "Il tuo accesso è in attesa di approvazione", email usata, pulsante "Esci" e "Ricontrolla". Si aggiorna da solo. **Bloccato**: stessa schermata con testo neutro.
+## 4. Sistema di illustrazioni
+**Stile**: line art SVG **inline**, `viewBox="0 0 96 96"`, `fill="none"`, tratto **1.5 px** (1.25 per dettagli) con `stroke-linecap/linejoin: round`, `vector-effect: non-scaling-stroke`. Struttura (piatto, ciotola, contorni) in `currentColor` (inchiostro); **un solo colore d'accento** per il "cibo": terracotta e/o salvia, a tratti brevi o riempimenti non pieni (opacità .15 al massimo). Forme semplici, leggermente imperfette ma simmetriche; niente ombre o gradienti. Si ridimensionano via CSS (`--illu-s` 48, `--illu-m` 96, `--illu-l` 176). `aria-hidden="true"` se decorative.
+
+Componenti (cartella `app/src/illustrazioni/`, un componente ciascuno + indice):
+`Piatto` (cerchi concentrici, generico) · `Ciotola` · `Insalata` · `Legumi` · `Pesce` · `Carne` (pollo/manzo) · `Uova` · `Formaggio` · `Pane` · `Cereali` (riso/pasta/avena) · `Frutta` · `Verdura` · `Frullato` (bicchiere/smoothie) · `Yogurt` · `Tazza` (colazione) · `Libero` (forchetta e coltello incrociati) · `Digiuno` (piatto vuoto con luna) · `Carrello` · `Bilancia` · `Germoglio` (foglia). Extra per gli stati: `Orologio` (attesa), `Cuoco/Cloche` (login).
+
+**Scelta dell'illustrazione di un piatto** (funzione `illustrazionePiatto(piatto)`, deterministica):
+1. Tipo `libero` -> `Libero`; `digiuno` -> `Digiuno`.
+2. Prende gli alimenti **principali** = quelli con quantità maggiore in grammi fra proteine/cereali/legumi; se pari, il primo dell'elenco.
+3. Cerca parole chiave nel nome dell'alimento e nei tag, in quest'ordine di priorità: pesce/tonno/salmone/merluzzo -> `Pesce`; pollo/tacchino/manzo/vitello/maiale/prosciutto/bresaola -> `Carne`; uova/albume -> `Uova`; ceci/lenticchie/fagioli/piselli/legumi -> `Legumi`; formaggio/ricotta/mozzarella/parmigiano/feta -> `Formaggio`; riso/pasta/orzo/farro/avena/cereali/quinoa -> `Cereali`; pane/fette/gallette/crackers -> `Pane`; yogurt/skyr/kefir -> `Yogurt`; frullato/shake/latte -> `Frullato`; frutta e nomi di frutti -> `Frutta`; insalata/rucola/lattuga -> `Insalata`; verdura/zucchine/spinaci ecc. -> `Verdura`.
+4. Tipo pasto `colazione` senza altro riscontro -> `Tazza`; pasto con più di 4 alimenti e contenuto liquido (zuppa/minestra) -> `Ciotola`.
+5. Nessun riscontro -> `Piatto`. La tabella parole chiave sta in un solo file dati, modificabile.
+Colore d'accento per default: terracotta per proteine/cereali/pane, salvia per verdure/frutta/legumi.
+
+## 5. Componenti
+- **Testata di pagina**: occhiello (es. `GIOVEDI' 23`) sopra il titolo serif 36 px, sottotitolo facoltativo in sans; 48 px sopra e 20 sotto. Nessuna barra superiore: la testata scorre via; titolo ridotto sticky solo nelle liste lunghe.
+- **Card piatto editoriale** (non è una card: niente sfondo o bordo): occhiello del pasto, illustrazione `--illu-m` centrata, nome del piatto serif, sottotitolo (n. alimenti, canale principale), filetto, ingredienti, preparazione comprimibile ("Come si prepara", testo in sans), pillole azione. Pasti successivi in versione compatta: illustrazione 48 a sinistra, occhiello + nome, puntino di stato, separati da filetti.
+- **Lista ingredienti a filetti**: riga alta 48, nome a sinistra, quantità a destra (tabulare, `--c-testo-2`), filetto 1 px sotto. Con alternative: la scelta corrente e sotto/accanto **"· cambia"** in `--c-terracotta-testo`. Scelta mancante: "· da scegliere" in terracotta (parola, non badge).
+- **Pillole azione**: altezza 48, raggio 999. **Fatto** = pieno `--c-inchiostro` con testo `--c-su-inchiostro`; **Sostituito** = contorno 1.5 px inchiostro; **Saltato** = solo testo sottolineato, più discreto. Stato attivo: segno (spunta/doppia freccia/trattino) + parola.
+- **Indicatore di stato**: puntino 8 px + parola nel colore semantico ("Fatto", "Sostituito", "Saltato", "Libero", "Digiuno", "Da scegliere"). Canali spesa: stessa forma con `--c-amazon/fresco/esterno` e parola ("Amazon", "Fresco", "Esterno"); sfondo `-bg` ammesso solo in elenchi di riepilogo.
+- **Selettore alternative (bottom sheet editoriale)**: sfondo `--c-carta-2`, raggio 22 in alto, maniglia sottile, occhiello "SCEGLI" + titolo serif ("Legumi a pranzo"), opzioni come righe a filetti con illustrazione 48 a sinistra, nome serif e quantità a destra; la scelta è un cerchio 20 px (pieno terracotta se attiva). Tocco = seleziona e chiude con dissolvenza (nessun "Conferma" per 2-4 opzioni; per 5+ pulsante pillola "Conferma" fisso). Padding inferiore = safe area.
+- **Barra in basso minimale**: altezza 56 + safe area, sfondo `--c-carta` con filetto superiore, 5 voci (**Oggi, Settimana, Spesa, Peso, Profilo**) con icona a tratto 1.5 px 24 px + etichetta 11 px; attiva in `--c-inchiostro` con piccolo trattino terracotta sopra l'icona; inattive `--c-testo-2`.
+- **Stati vuoti illustrati**: illustrazione `--illu-l` + titolo serif + una frase + una sola pillola d'azione. Esempi: nessun piano (`Piatto` vuoto, "Il tuo menu non c'è ancora" -> "Importa il piano"); giornata completata (`Germoglio`); spesa (`Carrello`); peso (`Bilancia`).
+- **Caricamento**: scheletri a filetti grigi (titolo + 4 righe), niente spinner a tutto schermo. **Errore**: frase chiara in `--c-errore` con "Riprova", mai codici. **Offline**: nota discreta in testa; dati in cache leggibili. **Toast**: pillola scura in basso sopra la barra, con "Annulla" per 5 s.
+
+## 6. Schermate
 
 ### Oggi
-1. Intestazione: giorno e data ("Giovedì 23 ottobre"), progresso del giorno ("2 di 4 pasti").
-2. **Prossimo pasto** in evidenza: il primo pasto del giorno non ancora segnato, nell'ordine del piano (gli orari li deciderà l'utente; per ora vale l'ordine). Piatto, ingredienti con grammature, preparazione comprimibile, varianti "In alternativa".
-3. Azioni: **Fatto** (primaria), **Sostituito** (apre campo nota facoltativa), **Saltato**. Toast con Annulla. Segnato un pasto, quello dopo sale in evidenza.
-4. **Altri pasti del giorno** in card compatte: già segnati col badge stato, quelli futuri in sola lettura; tap per espandere.
-5. Promemoria del nutrizionista (note, es. "2 L d'acqua entro pranzo") in una striscia comprimibile; indicatori delle regole (es. "Colazioni diverse: 2 di 3").
-- **Pasto di tipo scelta**: la card mostra le opzioni (gruppi, es. "Colazioni giorni di riposo") come elenco di piatti selezionabili; la scelta del giorno si fa prima di segnare. Se più gruppi, sezioni con titolo.
-- **Componenti con alternative**: mostrano la scelta della settimana ("Ceci") con "cambia"; se manca, badge "Da scegliere" che apre lo sheet.
-- **Libero**: card tinta `--colore-libero`, "Pasto libero: goditelo", solo azione "Fatto". **Digiuno**: tinta `--colore-digiuno`, "Pausa dal cibo", solo "Fatto"/"Saltato"; mai tono di rimprovero.
-- Stati: vuoto (nessun piano: invito a importare o attendere l'admin), caricamento a scheletri, errore con Riprova, giornata completata ("Giornata completata", riepilogo).
+1. Testata: occhiello `GIOVEDI' 23 OTTOBRE`, titolo serif "Oggi a pranzo" (il pasto cambia con il prossimo non segnato); sotto, progresso in parole ("2 di 4 pasti").
+2. Illustrazione del piatto (`--illu-l`, centrata) -> nome piatto in serif -> ingredienti a filetti -> "Come si prepara" comprimibile -> "In alternativa" (se esiste).
+3. Pillole: **Fatto** (piena), **Sostituito** (contorno; apre nota facoltativa), **Saltato** (testo). Segnato un pasto, il successivo sale con dissolvenza.
+4. "Più tardi oggi": pasti compatti con filetti, stato a puntino; tocco = espande.
+5. Promemoria del nutrizionista come riga corsiva sotto un filetto ("2 L d'acqua entro pranzo"); indicatori regole in parole ("Colazioni diverse: 2 di 3").
+- Pasto di tipo scelta: elenco di piatti con illustrazione 48 selezionabili. Libero: illustrazione `Libero`, "Pasto libero: goditelo", solo Fatto. Digiuno: `Digiuno`, "Pausa dal cibo", Fatto/Saltato.
+- Stati: vuoto illustrato, caricamento a scheletri, errore, "Giornata completata".
 
-### Settimana
-1. Selettore settimana ISO (← S43 →), oggi evidenziato.
-2. Sezione **Scelte della settimana** in alto: per ogni componente con alternative una riga "Legumi pranzo lun · Ceci" con segmented/sheet; contatore "2 da fare" in badge `scelta`. La scelta vale per la settimana ISO e alimenta la spesa.
-3. Griglia compatta: 7 giorni in righe (giorno + una riga per pasto, nome del piatto troncato, pallino stato). Orizzontale non necessario su iPhone.
-4. Tap su un pasto → dettaglio in sheet a tutta altezza (stessi contenuti della card).
-- Stati: vuoto, caricamento, errore; settimana senza scelte → sezione nascosta.
+### Settimana (stile menu del ristorante)
+1. Testata: occhiello `SETTIMANA 43`, titolo "Il menu della settimana"; frecce discrete per cambiare settimana (ISO). 
+2. Se ci sono scelte da fare: striscia "Da scegliere: 2" in terracotta con tocco che apre lo sheet; altrimenti nascosta.
+3. **Ogni giorno è un capitolo**: titolo serif ("Lunedì 20"), filetto doppio sottile, poi una riga per pasto: occhiello del pasto + nome piatto serif 18, illustrazione 48 a destra, puntino di stato. Oggi con occhiello terracotta "OGGI". Tocco su un pasto = pagina dettaglio (come Oggi) in sheet a tutta altezza.
+4. Nessuna griglia: scorrimento verticale; indice dei giorni (L M M G V S D) sticky in alto, tocco = salta al capitolo.
 
-### Importa piano
-- Scopo: caricare il JSON (vedi `docs/IMPORT.md`). Passi: **1** scegli file (area tratteggiata + pulsante "Scegli file .json") · **2** anteprima · **3** conferma.
-- Anteprima: titolo, data visita, n. pasti, n. piatti, n. alimenti per canale, **dubbi** (alimenti esterni senza link, quantità mancanti) in una lista con icona di avviso; errori di validazione in rosso, bloccanti, con riga/percorso.
-- Admin: selettore "Utente destinatario" (elenco approvati; default se stesso). Conferma con riepilogo "Importo X piatti per [utente]"; avviso se sostituisce un piano esistente (resta nello storico).
-- Stati: file non valido, caricamento, successo (vai a Oggi). Utenti non admin importano solo per sé.
+### Controlla il piano (dopo l'import e in Modifica piano)
+**Non è un modulo**: è il menu impaginato, modificabile toccando.
+1. **Testata**: occhiello `CONTROLLA IL PIANO`, titolo serif = titolo del piano; sottotitolo "Visita del 12 ottobre · 28 pasti · 64 alimenti". Per l'admin, riga "Per: [utente]".
+2. **Riepilogo "Da verificare"** (subito sotto): tre o quattro righe a filetti, ciascuna con conteggio grande in serif e descrizione: "7 · quantità q.b.", "5 · alimenti nuovi", "3 · senza canale di spesa", "2 · errori da correggere" (solo se bloccanti, testo `--c-errore`). Tocco su una riga = scorre al primo punto e mette in evidenza i successivi: freccia "Prossimo ›" in una pillola flottante con "2 di 7". A zero conteggio la riga diventa "Tutto a posto" in salvia con spunta.
+3. **Il menu**: un capitolo per giorno (come Settimana), per ogni pasto: occhiello, nome piatto serif, ingredienti a filetti (nome · quantità a destra). I punti da verificare hanno un segno nel testo: quantità mancante = "q.b." in terracotta sottolineata tratteggiata; alimento nuovo = piccolo puntino terracotta prima del nome; canale mancante = parola "scegli canale" in terracotta. Nessun campo di input visibile: tutto è testo.
+4. **Tocco su un ingrediente** -> bottom sheet "Modifica ingrediente": titolo serif = nome; campi in stile minimale (riga con etichetta sopra e solo filetto sotto, niente riquadro): **Nome**, **Quantita'** (numerica) e **Unita'** (g, ml, pezzi, q.b., cucchiai: segmented a pillole), **Canale** (Amazon / Fresco / Esterno: pillole). Azioni: pillola piena "Salva", testo "Elimina ingrediente" (con conferma), "Aggiungi alternativa" se applicabile. Dopo il salvataggio la riga si aggiorna e il conteggio "Da verificare" scala con una breve animazione.
+5. **Tocco sul nome del piatto o sulla preparazione** -> modifica **in linea**: il testo diventa editabile sul posto (cursore, filetto sotto), tastiera iOS; "Fine" nella barra sopra la tastiera, salva in uscita dal campo. Annulla con un tocco fuori + toast "Annulla".
+6. **Aggiunte**: in fondo a ogni pasto "+ Aggiungi ingrediente" (terracotta), apre lo stesso sheet vuoto.
+7. **Conferma finale**: in fondo alla pagina un blocco con illustrazione `Piatto` + frase "Il piano è pronto?" + riepilogo (n. residui da verificare). **Barra fissa "Conferma piano"** sopra la barra di navigazione: pillola piena a tutta larghezza, sempre visibile. Se restano errori bloccanti è disabilitata con testo "Correggi 2 errori"; se restano solo avvisi, il tocco apre un sheet "Restano 7 punti da verificare" con "Conferma comunque" e "Torna al controllo". Dopo la conferma: schermata di successo (`Germoglio`) -> "Vai a Oggi".
+- In **Modifica piano** valgono le stesse regole; la conferma diventa "Salva modifiche" e viene mostrato un conteggio delle variazioni.
+- Stati: caricamento a scheletri; errore di salvataggio con "Riprova" (le modifiche restano in locale); piano sostituito -> avviso discreto sotto la testata (il precedente resta nello storico).
 
-### Admin (da Profilo)
-- Tre schede segmentate: **In attesa**, **Approvati**, **Bloccati**, con contatori.
-- Riga utente: avatar, nome, email, data richiesta; azioni "Approva" (primaria) / "Blocca" (con conferma); su approvati "Importa piano".
-- L'admin non vede i dati di piano e peso degli altri. Stati: vuoto per scheda ("Nessuna richiesta in attesa"), errore.
+### Altre schermate (stessa testata, stessi filetti)
+- **Importa piano**: tre passi dichiarati nell'occhiello (`1 DI 3`), scelta file con area a filetto tratteggiato, poi si passa a "Controlla il piano".
+- **Admin**: titolo "Persone", tre voci testuali con contatori (In attesa · Approvati · Bloccati) al posto dei segmented; righe a filetti con avatar, nome, azioni "Approva" (pillola piena) / "Blocca" (testo, con conferma).
+- **Profilo, Spesa, Peso**: stessi principi; i segnaposto usano `Carrello`/`Bilancia` con una frase.
 
-### Navigazione
-Barra in basso: **Oggi**, **Settimana**, **Spesa** (segnaposto: "In arrivo: lista Amazon e fresco"), **Peso** (segnaposto con anteprima del gioco), **Profilo** (nome, intolleranze, tema, piano attivo e storico, Importa piano, Admin se admin, Esci). I segnaposto hanno icona, frase e nessuna azione.
+## 7. Login e attesa
+- **Login**: carta, illustrazione grande `Cloche` (a tratto, accento terracotta) a metà schermo, occhiello `PIANO ALIMENTARE`, titolo serif "Il tuo menu, giorno per giorno", una riga di descrizione, pillola "Continua con Google" (secondo le linee guida Google), nota privacy in 13 px. Errori sotto il pulsante.
+- **In attesa**: illustrazione `Orologio` (piatto con lancette), titolo serif "Stiamo preparando il tuo posto", frase "Il tuo accesso è in attesa di approvazione", email usata, pillole "Ricontrolla" (contorno) e "Esci" (testo). Si aggiorna da solo. **Bloccato**: stessa schermata, testo neutro, nessuna illustrazione festosa.
 
 ## Gioco del peso (idea da sviluppare)
-Non è nel prototipo. Vincolo: l'utente inserisce **solo il peso**. Il gioco premia perdita e regolarità, senza punire.
+Non è nel prototipo. Vincolo: l'utente inserisce **solo il peso**. Il gioco premia perdita e regolarità, senza punire. Le illustrazioni seguono lo stesso stile a tratto (`Germoglio`, fiori e foglie).
 
 Regole comuni (anti-incentivi malsani):
 - Il progresso usa la **media mobile a 7 giorni**, non il singolo valore, per ignorare le oscillazioni.
@@ -127,4 +158,4 @@ Regole comuni (anti-incentivi malsani):
 
 **Concept B: Il Sentiero.** Un percorso a tappe verso una vetta/meta. Le misure regolari danno **energia** (passi) che fa avanzare l'avatar; la perdita sana sblocca **punti panoramici** (tappe di peso). Giorni "jolly" accumulati coprono le assenze. L'utente vede mappa, prossima tappa, energia della giornata.
 
-**Consiglio: A (Giardino).** Più calmo, nessuna meccanica di perdita o di serie, facile da mostrare in una sola schermata, e separa bene regolarità (foglie) da risultato (fiori).
+**Consiglio: A (Giardino).** Più calmo, nessuna meccanica di perdita o di serie, facile da mostrare in una sola schermata, e separa bene regolarità (foglie) da risultato (fiori); si sposa con lo stile editoriale a tratto.
