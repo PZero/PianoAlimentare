@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { impostaStatoUtente, useUtenti } from '../data/archivio';
 import type { ProfiloUtente, StatoUtente } from '../domain/tipi';
-import { Errore, Scheletri, Segmented, Sheet, Vuoto, useToast } from './Comuni';
+import { Errore, Scheletri, Sheet, Testata, Vuoto, useToast } from './Comuni';
 import { useApp } from './contesto';
 import { vai } from './router';
 
 const SCHEDE: { valore: StatoUtente; testo: string; vuoto: string }[] = [
   { valore: 'in_attesa', testo: 'In attesa', vuoto: 'Nessuna richiesta in attesa' },
-  { valore: 'approvato', testo: 'Approvati', vuoto: 'Nessun utente approvato' },
-  { valore: 'bloccato', testo: 'Bloccati', vuoto: 'Nessun utente bloccato' },
+  { valore: 'approvato', testo: 'Approvati', vuoto: 'Nessuna persona approvata' },
+  { valore: 'bloccato', testo: 'Bloccati', vuoto: 'Nessuna persona bloccata' },
 ];
 
 const data = (ms: number | null) => (ms ? new Date(ms).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
@@ -20,9 +20,11 @@ export function Admin() {
   const [scheda, setScheda] = useState<StatoUtente>('in_attesa');
   const [daBloccare, setDaBloccare] = useState<ProfiloUtente | null>(null);
 
-  useEffect(() => { document.title = 'Amministrazione · PianoAlimentare'; }, []);
+  useEffect(() => { document.title = 'Persone · PianoAlimentare'; }, []);
 
-  if (profilo.ruolo !== 'admin') return <Vuoto icona="lock" titolo="Area riservata" testo="Questa sezione è solo per l'amministratore." />;
+  if (profilo.ruolo !== 'admin') {
+    return <Vuoto illustrazione="Piatto" titolo="Area riservata" testo="Questa sezione è solo per l'amministratore." />;
+  }
 
   const imposta = (u: ProfiloUtente, stato: StatoUtente) => {
     impostaStatoUtente(u.uid, stato)
@@ -35,37 +37,41 @@ export function Admin() {
 
   return (
     <>
-      <div className="intestazione"><h1>Amministrazione</h1></div>
-      <Segmented
-        etichetta="Stato degli utenti" valore={scheda} onCambia={setScheda}
-        opzioni={SCHEDE.map((s) => ({ valore: s.valore, testo: `${s.testo} (${conta(s.valore)})` }))}
-      />
+      <Testata occhiello="Amministrazione" titolo="Persone" />
+      <div className="conteggi" role="tablist" aria-label="Stato delle persone">
+        {SCHEDE.map((s) => (
+          <button key={s.valore} role="tab" aria-selected={scheda === s.valore} className={scheda === s.valore ? 'attiva' : ''} onClick={() => setScheda(s.valore)}>
+            <strong className="num">{conta(s.valore)}</strong>
+            <span>{s.testo}</span>
+          </button>
+        ))}
+      </div>
       {utenti.errore && <Errore onRiprova={utenti.riprova} />}
-      {utenti.caricamento && <Scheletri />}
+      {utenti.caricamento && <Scheletri n={3} />}
       {!utenti.caricamento && !utenti.errore && elenco.length === 0 && (
-        <Vuoto icona="profilo" titolo={SCHEDE.find((s) => s.valore === scheda)!.vuoto} />
+        <Vuoto illustrazione="Tazza" titolo={SCHEDE.find((s) => s.valore === scheda)!.vuoto} />
       )}
-      <ul className="utenti">
+      <ul>
         {elenco.map((u) => (
-          <li key={u.uid} className="card utente">
-            <div className="utente-info">
+          <li key={u.uid} className="persona">
+            <div className="persona-info">
               <span className="avatar" aria-hidden="true">{(u.nome || u.email || '?').charAt(0).toUpperCase()}</span>
               <div>
-                <strong>{u.nome || 'Senza nome'}</strong>
-                <div className="tenue">{u.email}</div>
-                {u.creatoIlMs && <div className="tenue">Richiesta del {data(u.creatoIlMs)}</div>}
+                <p className="persona-nome">{u.nome || 'Senza nome'}</p>
+                <p className="nota">{u.email}</p>
+                {u.creatoIlMs && <p className="nota">Richiesta del {data(u.creatoIlMs)}</p>}
               </div>
             </div>
             {u.uid !== uid && (
               <div className="azioni azioni-riga">
                 {u.stato !== 'approvato' && (
-                  <button className="btn btn-primario btn-piccolo" onClick={() => imposta(u, 'approvato')}>Approva</button>
+                  <button className="btn btn-pieno" onClick={() => imposta(u, 'approvato')}>Approva</button>
                 )}
                 {u.stato === 'approvato' && (
-                  <button className="btn btn-secondario btn-piccolo" onClick={() => vai(`/importa/${u.uid}`)}>Importa piano</button>
+                  <button className="btn btn-contorno" onClick={() => vai(`/importa/${u.uid}`)}>Importa piano</button>
                 )}
                 {u.stato !== 'bloccato' && (
-                  <button className="btn btn-distruttivo btn-piccolo" onClick={() => setDaBloccare(u)}>Blocca</button>
+                  <button className="btn-link" onClick={() => setDaBloccare(u)}>Blocca</button>
                 )}
               </div>
             )}
@@ -74,15 +80,15 @@ export function Admin() {
       </ul>
 
       <Sheet
-        aperto={!!daBloccare} titolo="Bloccare l'utente?" onChiudi={() => setDaBloccare(null)}
+        aperto={!!daBloccare} occhiello="Conferma" titolo="Bloccare questa persona?" onChiudi={() => setDaBloccare(null)}
         piede={(
-          <div className="azioni">
-            <button className="btn btn-distruttivo" onClick={() => { if (daBloccare) imposta(daBloccare, 'bloccato'); setDaBloccare(null); }}>Blocca</button>
-            <button className="btn btn-secondario" onClick={() => setDaBloccare(null)}>Annulla</button>
-          </div>
+          <>
+            <button className="btn btn-pieno btn-largo" onClick={() => { if (daBloccare) imposta(daBloccare, 'bloccato'); setDaBloccare(null); }}>Blocca</button>
+            <button className="btn-link" onClick={() => setDaBloccare(null)}>Annulla</button>
+          </>
         )}
       >
-        <p>{daBloccare?.nome} ({daBloccare?.email}) non potrà più usare l'app finché non lo riapprovi.</p>
+        <p>{daBloccare?.nome} ({daBloccare?.email}) non potrà più usare l'app finché non la riapprovi.</p>
       </Sheet>
     </>
   );

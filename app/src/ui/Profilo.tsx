@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { elencoPiani, salvaProfilo } from '../data/archivio';
 import { useSessione } from '../data/sessione';
 import type { PianoSalvato } from '../domain/tipi';
-import { Badge, useToast } from './Comuni';
+import { Stato, Testata, useToast } from './Comuni';
 import { Icona } from './Icone';
 import { useApp } from './contesto';
 import { vai } from './router';
+
+const dataIt = (iso: string) => iso.split('-').reverse().join('/');
 
 export function Profilo() {
   const { profilo, uid, piano } = useApp();
@@ -45,83 +47,87 @@ export function Profilo() {
 
   return (
     <>
-      <div className="intestazione"><h1>Profilo</h1><p className="tenue">{profilo.email}</p></div>
+      <Testata occhiello="Profilo" titolo={profilo.nome || 'Il tuo profilo'} sottotitolo={profilo.email} />
 
-      <section className="card" aria-label="Dati personali">
-        <label className="etichetta">
-          Nome
-          <input className="campo" value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" />
+      <section aria-label="Dati personali">
+        <label className="campo">
+          <span className="occhiello">Nome</span>
+          <input value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" />
         </label>
-        <div className="etichetta">
-          Intolleranze ed esigenze
+        <div className="gruppo-campo">
+          <span className="occhiello">Intolleranze ed esigenze</span>
           <ul className="chips" aria-label="Intolleranze inserite">
             {intolleranze.map((x) => (
               <li key={x} className="chip">
                 {x}
-                <button className="btn-icona chip-x" aria-label={`Rimuovi ${x}`} onClick={() => setIntolleranze(intolleranze.filter((y) => y !== x))}>
+                <button className="btn-icona" style={{ minWidth: 36, minHeight: 36 }} aria-label={`Rimuovi ${x}`} onClick={() => setIntolleranze(intolleranze.filter((y) => y !== x))}>
                   <Icona nome="chiudi" dim={14} />
                 </button>
               </li>
             ))}
-            {intolleranze.length === 0 && <li className="tenue">Nessuna</li>}
+            {intolleranze.length === 0 && <li className="testo-2">Nessuna</li>}
           </ul>
-          <div className="riga-aggiungi">
-            <input
-              className="campo" placeholder="Es. senza glutine" value={nuova} aria-label="Nuova intolleranza"
-              onChange={(e) => setNuova(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); aggiungi(); } }}
-            />
-            <button className="btn btn-secondario" onClick={aggiungi} disabled={!nuova.trim()}>Aggiungi</button>
-          </div>
         </div>
-        <button className="btn btn-primario" onClick={salva} disabled={!modificato || !nome.trim() || salvataggio}>
-          {salvataggio ? 'Salvataggio…' : 'Salva'}
-        </button>
+        <label className="campo">
+          <span className="occhiello">Aggiungi</span>
+          <input
+            placeholder="Es. senza glutine" value={nuova}
+            onChange={(e) => setNuova(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); aggiungi(); } }}
+          />
+        </label>
+        <div className="azioni azioni-riga" style={{ marginTop: 20 }}>
+          <button className="btn btn-contorno" onClick={aggiungi} disabled={!nuova.trim()}>Aggiungi</button>
+          <button className="btn btn-pieno" onClick={salva} disabled={!modificato || !nome.trim() || salvataggio}>
+            {salvataggio ? 'Salvataggio…' : 'Salva'}
+          </button>
+        </div>
       </section>
 
-      <section aria-label="Piano">
-        <h2 className="sezione-titolo">Piano</h2>
-        <div className="card">
-          {piano ? (
-            <>
-              <strong>{piano.titolo}</strong>
-              {piano.dataVisita && <p className="tenue">Visita del {piano.dataVisita.split('-').reverse().join('/')}</p>}
-              <div className="azioni">
-                <button className="btn btn-secondario" onClick={() => vai('/modifica')}>Modifica piano</button>
-                <button className="btn btn-secondario" onClick={() => vai('/importa')}>Importa nuovo piano</button>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="tenue">Nessun piano attivo.</p>
-              <button className="btn btn-primario" onClick={() => vai('/importa')}>Importa piano</button>
-            </>
-          )}
-        </div>
+      <section className="sezione" aria-label="Piano">
+        <p className="occhiello">Il piano</p>
+        {piano ? (
+          <>
+            <h2 className="titolo-sezione" style={{ marginTop: 8 }}>{piano.titolo}</h2>
+            {piano.dataVisita && <p className="testo-2">Visita del {dataIt(piano.dataVisita)}</p>}
+            <div className="azioni azioni-riga" style={{ marginTop: 20 }}>
+              <button className="btn btn-contorno" onClick={() => vai('/modifica')}>Modifica piano</button>
+              <button className="btn btn-contorno" onClick={() => vai('/importa')}>Importa nuovo</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="testo-2" style={{ marginTop: 8 }}>Nessun piano attivo.</p>
+            <div className="azioni" style={{ marginTop: 20 }}><button className="btn btn-pieno" onClick={() => vai('/importa')}>Importa il piano</button></div>
+          </>
+        )}
         {storico && storico.length > 0 && (
-          <details className="storico">
+          <details className="preparazione" style={{ marginTop: 28 }}>
             <summary>Storico dei piani ({storico.length})</summary>
             <ul>
               {storico.map((p) => (
-                <li key={p.id}>
+                <li key={p.id} className="voce-elenco">
                   <span>{p.titolo}{p.importatoIlMs ? ` · ${new Date(p.importatoIlMs).toLocaleDateString('it-IT')}` : ''}</span>
-                  {p.attivo && <Badge tipo="fatto" testo="Attivo" />}
+                  {p.attivo && <Stato tipo="attivo" />}
                 </li>
               ))}
             </ul>
           </details>
         )}
-        {erroreStorico && <p className="tenue">Storico non disponibile al momento.</p>}
+        {erroreStorico && <p className="nota" style={{ marginTop: 12 }}>Storico non disponibile al momento.</p>}
       </section>
 
       {profilo.ruolo === 'admin' && (
-        <section aria-label="Amministrazione">
-          <h2 className="sezione-titolo">Amministrazione</h2>
-          <button className="btn btn-secondario" onClick={() => vai('/admin')}>Gestisci utenti</button>
+        <section className="sezione" aria-label="Amministrazione">
+          <p className="occhiello">Amministrazione</p>
+          <button className="voce-elenco" onClick={() => vai('/admin')} style={{ marginTop: 8, borderTop: '1px solid var(--c-filetto)' }}>
+            <span className="nome-piatto" style={{ fontWeight: 400, fontSize: '1.125rem' }}>Persone</span>
+            <Icona nome="destra" dim={18} />
+          </button>
         </section>
       )}
 
-      <div className="azioni piede-profilo">
-        <button className="btn btn-secondario" onClick={() => esci()}>Esci</button>
+      <div className="azioni azioni-centro sezione">
+        <button className="btn-link" onClick={() => esci()}>Esci</button>
       </div>
     </>
   );

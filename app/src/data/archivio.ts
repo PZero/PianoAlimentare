@@ -4,6 +4,7 @@ import {
   addDoc, collection, deleteField, doc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where,
   writeBatch, type DocumentData,
 } from 'firebase/firestore';
+import { DEMO, demoLeggi, demoScrivi, demoSottoscrivi, demoUnisci } from './demoStore';
 import { db } from './firebase';
 import { profiloDaDoc } from './sessione';
 import type {
@@ -58,7 +59,8 @@ const piuRecentePrima = (a: PianoSalvato, b: PianoSalvato) =>
 export function usePianoAttivo(uid: string | null): Flusso<PianoSalvato | null> {
   const f = useFlusso<PianoSalvato | null>(
     null,
-    uid
+    DEMO ? (ok) => demoSottoscrivi<PianoSalvato | null>('piano', null, ok)
+    : uid
       ? (ok, ko) => onSnapshot(
         query(collection(basedati(), 'utenti', uid, 'piani'), where('attivo', '==', true)),
         (snap) => {
@@ -81,6 +83,7 @@ export function usePianoAttivo(uid: string | null): Flusso<PianoSalvato | null> 
 
 /** Storico di tutti i piani (per Profilo). */
 export async function elencoPiani(uid: string): Promise<PianoSalvato[]> {
+  if (DEMO) { const p = demoLeggi<PianoSalvato | null>('piano', null); return p ? [p] : []; }
   const snap = await getDocs(query(collection(basedati(), 'utenti', uid, 'piani'), orderBy('importatoIl', 'desc')));
   return snap.docs.map((d) => pianoDaDoc(d.id, d.data()));
 }
@@ -89,6 +92,10 @@ export async function elencoPiani(uid: string): Promise<PianoSalvato[]> {
 export async function importaPiano(
   destinatarioUid: string, proprioUid: string, piano: Piano, attiviPrecedenti: PianoSalvato[],
 ): Promise<void> {
+  if (DEMO) {
+    if (destinatarioUid === proprioUid) demoScrivi('piano', { ...piano, id: 'demo', attivo: true, importatoIlMs: Date.now() });
+    return;
+  }
   const d = basedati();
   const col = collection(d, 'utenti', destinatarioUid, 'piani');
   const dati = { ...piano, attivo: true, importatoIl: serverTimestamp() };
@@ -107,15 +114,26 @@ export async function importaPiano(
 export function useScelte(uid: string, chiaveSett: string): Flusso<ScelteSettimana> {
   return useFlusso<ScelteSettimana>(
     {},
-    (ok, ko) => onSnapshot(doc(basedati(), 'utenti', uid, 'settimane', chiaveSett), (s) => ok((s.data() ?? {}) as ScelteSettimana), ko),
+    DEMO ? (ok) => demoSottoscrivi<ScelteSettimana>(`scelte/${chiaveSett}`, {}, ok)
+    : (ok, ko) => onSnapshot(doc(basedati(), 'utenti', uid, 'settimane', chiaveSett), (s) => ok((s.data() ?? {}) as ScelteSettimana), ko),
     `${uid}/${chiaveSett}`,
   );
 }
 
 export function salvaSceltaComponente(uid: string, chiaveSett: string, chiaveComp: string, indice: number) {
+  if (DEMO) {
+    const c = demoLeggi<ScelteSettimana>(`scelte/${chiaveSett}`, {});
+    demoScrivi(`scelte/${chiaveSett}`, { ...c, componenti: { ...c.componenti, [chiaveComp]: indice } });
+    return Promise.resolve();
+  }
   return setDoc(doc(basedati(), 'utenti', uid, 'settimane', chiaveSett), { componenti: { [chiaveComp]: indice } }, { merge: true });
 }
 export function salvaSceltaPiatto(uid: string, chiaveSett: string, chiavePasto: string, piattoId: string) {
+  if (DEMO) {
+    const c = demoLeggi<ScelteSettimana>(`scelte/${chiaveSett}`, {});
+    demoScrivi(`scelte/${chiaveSett}`, { ...c, piatti: { ...c.piatti, [chiavePasto]: piattoId } });
+    return Promise.resolve();
+  }
   return setDoc(doc(basedati(), 'utenti', uid, 'settimane', chiaveSett), { piatti: { [chiavePasto]: piattoId } }, { merge: true });
 }
 
@@ -124,16 +142,24 @@ export function salvaSceltaPiatto(uid: string, chiaveSett: string, chiavePasto: 
 export function useDiario(uid: string, giorno: string): Flusso<Diario> {
   return useFlusso<Diario>(
     {},
-    (ok, ko) => onSnapshot(doc(basedati(), 'utenti', uid, 'diario', giorno), (s) => ok((s.data() ?? {}) as Diario), ko),
+    DEMO ? (ok) => demoSottoscrivi<Diario>(`diario/${giorno}`, {}, ok)
+    : (ok, ko) => onSnapshot(doc(basedati(), 'utenti', uid, 'diario', giorno), (s) => ok((s.data() ?? {}) as Diario), ko),
     `${uid}/${giorno}`,
   );
 }
 
 export function segnaPasto(uid: string, giorno: string, pastoId: string, stato: StatoPasto) {
+  if (DEMO) { demoUnisci(`diario/${giorno}`, { [pastoId]: stato }); return Promise.resolve(); }
   return setDoc(doc(basedati(), 'utenti', uid, 'diario', giorno), { [pastoId]: stato }, { merge: true });
 }
 /** Ripristina lo stato precedente (o toglie il segno se non c'era). */
 export function annullaPasto(uid: string, giorno: string, pastoId: string, precedente: StatoPasto | undefined) {
+  if (DEMO) {
+    const d = { ...demoLeggi<Diario>(`diario/${giorno}`, {}) };
+    if (precedente) d[pastoId] = precedente; else delete d[pastoId];
+    demoScrivi(`diario/${giorno}`, d);
+    return Promise.resolve();
+  }
   const ref = doc(basedati(), 'utenti', uid, 'diario', giorno);
   return precedente
     ? setDoc(ref, { [pastoId]: precedente }, { merge: true })
@@ -143,6 +169,7 @@ export function annullaPasto(uid: string, giorno: string, pastoId: string, prece
 // ---------- Profilo e utenti ----------
 
 export function salvaProfilo(uid: string, dati: { nome: string; intolleranze: string[] }) {
+  if (DEMO) return Promise.resolve();
   return updateDoc(doc(basedati(), 'utenti', uid), { nome: dati.nome, intolleranze: dati.intolleranze });
 }
 
@@ -150,7 +177,8 @@ export function salvaProfilo(uid: string, dati: { nome: string; intolleranze: st
 export function useUtenti(attivo: boolean): Flusso<ProfiloUtente[]> {
   return useFlusso<ProfiloUtente[]>(
     [],
-    attivo
+    DEMO ? (ok) => demoSottoscrivi<ProfiloUtente[]>('utenti', [], ok)
+    : attivo
       ? (ok, ko) => onSnapshot(
         collection(basedati(), 'utenti'),
         (snap) => ok(snap.docs.map((d) => profiloDaDoc(d.id, d.data())).sort((a, b) => (b.creatoIlMs ?? Infinity) - (a.creatoIlMs ?? Infinity))),
@@ -163,11 +191,20 @@ export function useUtenti(attivo: boolean): Flusso<ProfiloUtente[]> {
 
 /** L'admin modifica solo il campo stato (le regole non consentono altro). */
 export function impostaStatoUtente(uid: string, stato: StatoUtente) {
+  if (DEMO) {
+    demoScrivi('utenti', demoLeggi<ProfiloUtente[]>('utenti', []).map((u) => (u.uid === uid ? { ...u, stato } : u)));
+    return Promise.resolve();
+  }
   return updateDoc(doc(basedati(), 'utenti', uid), { stato });
 }
 
 /** Salva le correzioni al contenuto di un piano (solo il proprietario: le regole non lo consentono all'admin). */
 export function salvaModifichePiano(uid: string, pianoId: string, piano: Piano) {
+  if (DEMO) {
+    const att = demoLeggi<PianoSalvato | null>('piano', null);
+    if (att) demoScrivi('piano', { ...piano, id: att.id, attivo: true, importatoIlMs: att.importatoIlMs });
+    return Promise.resolve();
+  }
   const contenuto = JSON.parse(JSON.stringify(piano)) as Piano; // toglie eventuali undefined
   return updateDoc(doc(basedati(), 'utenti', uid, 'piani', pianoId), { ...contenuto });
 }
@@ -176,7 +213,12 @@ export function salvaModifichePiano(uid: string, pianoId: string, piano: Piano) 
 export function useDiariGiorni(uid: string, giorni: string[]): Flusso<Record<string, Diario>> {
   return useFlusso<Record<string, Diario>>(
     {},
-    (ok, ko) => {
+    DEMO ? (ok) => {
+      const acc: Record<string, Diario> = {};
+      const annulla = giorni.map((g) => demoSottoscrivi<Diario>(`diario/${g}`, {}, (d) => { acc[g] = d; ok({ ...acc }); }));
+      return () => annulla.forEach((a) => a());
+    }
+    : (ok, ko) => {
       const acc: Record<string, Diario> = {};
       const annulla = giorni.map((g) => onSnapshot(
         doc(basedati(), 'utenti', uid, 'diario', g),

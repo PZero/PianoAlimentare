@@ -1,30 +1,34 @@
-// Componenti comuni: badge, bottom sheet, toast, stati (vuoto / caricamento / errore), segmented control.
+// Componenti comuni (docs/DESIGN.md, sezione 5): stato a puntino, bottom sheet, toast, stati vuoti, pillole.
 import {
-  createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type PointerEvent,
+  createContext, useCallback, useContext, useEffect, useRef, useState, type PointerEvent, type ReactNode,
 } from 'react';
-import { Icona, type NomeIcona } from './Icone';
+import { Illustrazione, type Accento, type NomeIllustrazione } from '../illustrazioni';
+import { Icona } from './Icone';
 
-// ---------- Badge ----------
-export type TipoBadge = 'fatto' | 'sostituito' | 'saltato' | 'libero' | 'digiuno' | 'scelta' | 'amazon' | 'fresco' | 'esterno' | 'base';
-const BADGE: Record<TipoBadge, { testo: string; icona?: NomeIcona }> = {
-  fatto: { testo: 'Fatto', icona: 'fatto' },
-  sostituito: { testo: 'Sostituito', icona: 'sostituito' },
-  saltato: { testo: 'Saltato', icona: 'saltato' },
-  libero: { testo: 'Libero', icona: 'libero' },
-  digiuno: { testo: 'Digiuno', icona: 'digiuno' },
-  scelta: { testo: 'Da scegliere', icona: 'avviso' },
-  amazon: { testo: 'Amazon' },
-  fresco: { testo: 'Fresco' },
-  esterno: { testo: 'Esterno' },
-  base: { testo: 'Base' },
+// ---------- Stato: puntino + parola ----------
+export type TipoStato = 'fatto' | 'sostituito' | 'saltato' | 'libero' | 'digiuno' | 'scelta' | 'amazon' | 'fresco' | 'esterno' | 'base' | 'attivo';
+const STATI: Record<TipoStato, string> = {
+  fatto: 'Fatto', sostituito: 'Sostituito', saltato: 'Saltato', libero: 'Libero', digiuno: 'Digiuno', scelta: 'Da scegliere',
+  amazon: 'Amazon', fresco: 'Fresco', esterno: 'Esterno', base: 'Dispensa', attivo: 'Attivo',
 };
-export function Badge({ tipo, testo }: { tipo: TipoBadge; testo?: string }) {
-  const b = BADGE[tipo];
+export function Stato({ tipo, testo }: { tipo: TipoStato; testo?: string }) {
   return (
-    <span className={`badge badge-${tipo}`}>
-      {b.icona && <Icona nome={b.icona} dim={14} />}
-      {testo ?? b.testo}
+    <span className={`stato stato-${tipo}`}>
+      <span className="puntino" aria-hidden="true" />
+      {testo ?? STATI[tipo]}
     </span>
+  );
+}
+
+// ---------- Testata di pagina ----------
+export function Testata({ occhiello, titolo, sottotitolo, children }: { occhiello?: string; titolo: string; sottotitolo?: ReactNode; children?: ReactNode }) {
+  return (
+    <header className="testata">
+      {occhiello && <p className="occhiello">{occhiello}</p>}
+      <h1 className="titolo">{titolo}</h1>
+      {sottotitolo && <p className="sottotitolo">{sottotitolo}</p>}
+      {children}
+    </header>
   );
 }
 
@@ -32,22 +36,25 @@ export function Badge({ tipo, testo }: { tipo: TipoBadge; testo?: string }) {
 interface PropsSheet {
   aperto: boolean;
   titolo: string;
+  occhiello?: string;
   onChiudi: () => void;
   children: ReactNode;
   /** contenuto fisso in basso (es. pulsante Conferma) */
   piede?: ReactNode;
   pieno?: boolean;
 }
-export function Sheet({ aperto, titolo, onChiudi, children, piede, pieno }: PropsSheet) {
+export function Sheet({ aperto, titolo, occhiello, onChiudi, children, piede, pieno }: PropsSheet) {
   const ref = useRef<HTMLDivElement>(null);
   const [spost, setSpost] = useState(0);
   const inizioY = useRef<number | null>(null);
+  const chiudiRef = useRef(onChiudi);
+  chiudiRef.current = onChiudi;
 
   useEffect(() => {
     if (!aperto) return;
     const precedente = document.activeElement as HTMLElement | null;
     ref.current?.focus();
-    const tasto = (e: KeyboardEvent) => { if (e.key === 'Escape') onChiudi(); };
+    const tasto = (e: KeyboardEvent) => { if (e.key === 'Escape') chiudiRef.current(); };
     document.addEventListener('keydown', tasto);
     document.body.style.overflow = 'hidden';
     return () => {
@@ -55,7 +62,7 @@ export function Sheet({ aperto, titolo, onChiudi, children, piede, pieno }: Prop
       document.body.style.overflow = '';
       precedente?.focus?.();
     };
-  }, [aperto, onChiudi]);
+  }, [aperto]);
 
   useEffect(() => { if (!aperto) setSpost(0); }, [aperto]);
   if (!aperto) return null;
@@ -80,7 +87,10 @@ export function Sheet({ aperto, titolo, onChiudi, children, piede, pieno }: Prop
           <span />
         </div>
         <div className="sheet-testa">
-          <h2>{titolo}</h2>
+          <div>
+            {occhiello && <p className="occhiello">{occhiello}</p>}
+            <h2 className="sheet-titolo">{titolo}</h2>
+          </div>
           <button className="btn-icona" onClick={onChiudi} aria-label="Chiudi"><Icona nome="chiudi" /></button>
         </div>
         <div className="sheet-corpo">{children}</div>
@@ -90,17 +100,24 @@ export function Sheet({ aperto, titolo, onChiudi, children, piede, pieno }: Prop
   );
 }
 
-export interface VoceOpzione { id: string; etichetta: string; dettaglio?: string; sezione?: string }
+export interface VoceOpzione {
+  id: string;
+  etichetta: string;
+  dettaglio?: string;
+  sezione?: string;
+  illustrazione?: { nome: NomeIllustrazione; accento: Accento };
+}
 
-/** Sheet con righe radio e pulsante Conferma. */
+/** Selettore alternative: tocco = seleziona e chiude; con 5 o più opzioni c'è il pulsante "Conferma". */
 export function SheetOpzioni({
-  aperto, titolo, opzioni, valore, onConferma, onChiudi,
+  aperto, titolo, occhiello = 'Scegli', opzioni, valore, onConferma, onChiudi,
 }: {
-  aperto: boolean; titolo: string; opzioni: VoceOpzione[]; valore?: string;
+  aperto: boolean; titolo: string; occhiello?: string; opzioni: VoceOpzione[]; valore?: string;
   onConferma: (id: string) => void; onChiudi: () => void;
 }) {
   const [sel, setSel] = useState<string | undefined>(valore);
   useEffect(() => { if (aperto) setSel(valore); }, [aperto, valore]);
+  const conferma = opzioni.length >= 5;
   const sezioni: { titolo?: string; voci: VoceOpzione[] }[] = [];
   for (const o of opzioni) {
     const ultima = sezioni[sezioni.length - 1];
@@ -109,20 +126,25 @@ export function SheetOpzioni({
   }
   return (
     <Sheet
-      aperto={aperto} titolo={titolo} onChiudi={onChiudi}
-      piede={<button className="btn btn-primario" disabled={!sel} onClick={() => sel && onConferma(sel)}>Conferma</button>}
+      aperto={aperto} titolo={titolo} occhiello={occhiello} onChiudi={onChiudi}
+      piede={conferma ? <button className="btn btn-pieno btn-largo" disabled={!sel} onClick={() => sel && onConferma(sel)}>Conferma</button> : undefined}
     >
       {sezioni.map((s, i) => (
         <div key={i} role="radiogroup" aria-label={s.titolo ?? titolo}>
-          {s.titolo && <h3 className="sezione-titolo">{s.titolo}</h3>}
+          {s.titolo && <p className="occhiello occhiello-sezione">{s.titolo}</p>}
           {s.voci.map((o) => (
-            <label key={o.id} className={`radio-riga${sel === o.id ? ' attiva' : ''}`}>
-              <input type="radio" name="opzione" checked={sel === o.id} onChange={() => setSel(o.id)} />
-              <span className="radio-testo">
-                <span>{o.etichetta}</span>
-                {o.dettaglio && <span className="tenue num">{o.dettaglio}</span>}
+            <button
+              key={o.id} role="radio" aria-checked={sel === o.id}
+              className={`opzione${sel === o.id ? ' attiva' : ''}`}
+              onClick={() => { setSel(o.id); if (!conferma) onConferma(o.id); }}
+            >
+              <span className="opzione-illu">
+                {o.illustrazione && <Illustrazione nome={o.illustrazione.nome} accento={o.illustrazione.accento} misura="s" />}
               </span>
-            </label>
+              <span className="opzione-nome">{o.etichetta}</span>
+              {o.dettaglio && <span className="opzione-qta num">{o.dettaglio}</span>}
+              <span className="cerchio" aria-hidden="true" />
+            </button>
           ))}
         </div>
       ))}
@@ -152,7 +174,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div className="toast" key={toast.id}>
             <span>{toast.messaggio}</span>
             {toast.annulla && (
-              <button className="btn-testo" onClick={() => { toast.annulla?.(); setToast(null); }}>Annulla</button>
+              <button className="toast-annulla" onClick={() => { toast.annulla?.(); setToast(null); }}>Annulla</button>
             )}
           </div>
         )}
@@ -162,12 +184,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 // ---------- Stati ----------
-export function Vuoto({ icona = 'foglia', titolo, testo, azione }: { icona?: NomeIcona; titolo: string; testo?: string; azione?: ReactNode }) {
+export function Vuoto({ illustrazione = 'Piatto', accento, titolo, testo, azione }: {
+  illustrazione?: NomeIllustrazione; accento?: Accento; titolo: string; testo?: string; azione?: ReactNode;
+}) {
   return (
     <div className="vuoto">
-      <div className="vuoto-icona"><Icona nome={icona} dim={36} /></div>
-      <h2>{titolo}</h2>
-      {testo && <p className="tenue">{testo}</p>}
+      <Illustrazione nome={illustrazione} accento={accento} misura="l" />
+      <h2 className="titolo-sezione">{titolo}</h2>
+      {testo && <p className="testo-2">{testo}</p>}
       {azione}
     </div>
   );
@@ -175,32 +199,32 @@ export function Vuoto({ icona = 'foglia', titolo, testo, azione }: { icona?: Nom
 
 export function Errore({ testo = 'Non riesco a caricare i dati.', onRiprova }: { testo?: string; onRiprova?: () => void }) {
   return (
-    <div className="errore-box" role="alert">
-      <Icona nome="errore" />
-      <span>{testo}</span>
-      {onRiprova && <button className="btn btn-secondario btn-piccolo" onClick={onRiprova}>Riprova</button>}
+    <div className="errore" role="alert">
+      <p>{testo}</p>
+      {onRiprova && <button className="btn-link" onClick={onRiprova}>Riprova</button>}
     </div>
   );
 }
 
-export function Scheletri({ n = 2 }: { n?: number }) {
+export function Scheletri({ n = 4 }: { n?: number }) {
   return (
-    <div aria-busy="true" aria-label="Caricamento">
-      {Array.from({ length: n }, (_, i) => <div key={i} className="card scheletro" />)}
+    <div className="scheletri" aria-busy="true" aria-label="Caricamento">
+      <div className="sk sk-titolo" />
+      {Array.from({ length: n }, (_, i) => <div key={i} className="sk sk-riga" style={{ width: `${92 - i * 11}%` }} />)}
     </div>
   );
 }
 
-// ---------- Segmented control ----------
-export function Segmented<T extends string | number>({
+// ---------- Pillole di scelta (al posto del segmented) ----------
+export function Pillole<T extends string | number>({
   opzioni, valore, onCambia, etichetta,
 }: { opzioni: { valore: T; testo: string }[]; valore: T | undefined; onCambia: (v: T) => void; etichetta: string }) {
   return (
-    <div className="segmented" role="radiogroup" aria-label={etichetta}>
+    <div className="pillole" role="radiogroup" aria-label={etichetta}>
       {opzioni.map((o) => (
         <button
           key={String(o.valore)} role="radio" aria-checked={o.valore === valore}
-          className={o.valore === valore ? 'attiva' : ''} onClick={() => onCambia(o.valore)}
+          className={`pillola${o.valore === valore ? ' attiva' : ''}`} onClick={() => onCambia(o.valore)}
         >
           {o.testo}
         </button>
@@ -219,8 +243,4 @@ export function useOnline(): boolean {
     return () => { window.removeEventListener('online', su); window.removeEventListener('offline', giu); };
   }, []);
   return online;
-}
-
-export function useStabile<T>(v: T): T {
-  return useMemo(() => v, [v]);
 }
