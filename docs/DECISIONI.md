@@ -18,3 +18,7 @@
 | 2026-10-23 | Ruolo nutrizionista (fase 2) che vede i pazienti collegati con il loro consenso | Richiesta dell'utente; privacy dei dati di salute |
 | 2026-10-23 | Gioco del peso: concept "Il Giardino" proposto (da confermare) | Premia costanza delle misure e perdita sostenibile, senza punizioni |
 | 2026-10-23 | Collegamento paziente-nutrizionista con codice del nutrizionista; il paziente sceglie quali dati condividere | Richiesta dell'utente; consenso granulare |
+| 2026-10-23 | Redesign in stile "Editoriale": carta calda/notte, Fraunces, illustrazioni a tratto | Aspetto caldo e leggibile per l uso quotidiano; design in docs/DESIGN.md |
+| 2026-10-23 | Font Fraunces self-hosted (`@fontsource-variable`), senza Google Fonts a runtime | PWA offline e nessuna richiesta a terzi |
+| 2026-10-23 | Modalità demo solo in sviluppo (`?demo`) con dati inventati, esclusa dalla build | Vedere le schermate senza account e senza dati reali |
+| 2026-10-23 | Schermata unica "Controlla il piano" per import e modifica, giorno per giorno | Correggere il piano prima di salvarlo, senza il vecchio editor a modulo |

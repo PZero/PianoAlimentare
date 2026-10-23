@@ -1,23 +1,27 @@
 # Stato del progetto
 
-**Ultimo aggiornamento:** 2026-10-23 — Prototipo dell'app e regole Firestore.
+**Ultimo aggiornamento:** 2026-10-23 — Redesign editoriale, modalità demo e app online.
 
 ## Fatto
-- Requisiti (`docs/REQUISITI.md`), design system (`docs/DESIGN.md`), modello dati (`docs/MODELLO-DATI.md`), formato e procedura di importazione (`docs/IMPORT.md`).
-- Progetto Firebase `piano-alimentare-pz` creato (piano Spark). **Da fare in console**: creare il database Firestore, abilitare il login Google, aggiungere `pzero.github.io` ai domini autorizzati.
-- Regole Firestore in `firebase/firestore.rules`, con 23 test sull'emulatore (`npm run test:rules` in `firebase/`).
-- PWA in `app/` (Vite, React, TypeScript): Oggi, Settimana con scelte settimanali, Importa piano con controllo e correzione, Modifica piano, Admin, Profilo. Spesa e Peso in arrivo. 35 test Vitest.
-- Pubblicazione su GitHub Pages con `.github/workflows/pages.yml`: https://pzero.github.io/PianoAlimentare/
+- Requisiti (`docs/REQUISITI.md`), design system (`docs/DESIGN.md`, stile editoriale), modello dati (`docs/MODELLO-DATI.md`), importazione (`docs/IMPORT.md`).
+- Firebase configurato: progetto `piano-alimentare-pz`, Firestore, login Google.
+- Regole Firestore pubblicate, con 23 test sull'emulatore (`npm run test:rules` in `firebase/`).
+- Admin configurato.
+- App online su GitHub Pages: https://pzero.github.io/PianoAlimentare/ (deploy con `.github/workflows/pages.yml`).
+- PWA in `app/`: Oggi, Settimana a capitoli, Importa piano in tre passi, Controlla il piano, Modifica piano, Admin, Profilo, redesign editoriale con 22 illustrazioni. Segnaposto illustrati per Spesa e Peso.
+- Modalità demo solo in sviluppo (`?demo`), esclusa dalla build.
+- Test: 55 sull'app (`npm test` in `app/`), 23 sulle regole.
 
 ## Prossimi passi
-1. Pubblicare le regole Firestore (`npm run deploy:regole` in `firebase/`) dopo aver verificato le regole attualmente attive.
+1. Provare l'import del piano reale dall'app (schermata Importa piano, con il JSON ricavato dal PDF in `dati/`).
 2. Spesa: ordine Amazon con link al carrello (ASIN) e lista del fresco.
 3. Peso con il gioco "Il Giardino" (concept da confermare).
 4. Ruolo nutrizionista con codice e condivisione scelta dal paziente (fase 2).
 
 ## Problemi aperti
-- Le regole Firestore non sono ancora pubblicate: verificare che le regole attive non siano troppo permissive.
-- Verificare che il dominio `pzero.github.io` sia tra i domini autorizzati di Firebase Authentication, altrimenti il login non funziona dal sito online.
+- "Sostituito" è una nota libera non prevista dal modello dati: decidere se aggiungerla al modello (`docs/MODELLO-DATI.md`) o rimuoverla dall'interfaccia.
+- Bundle principale di circa 930 kB (precache del service worker circa 1 MB): valutare code splitting delle schermate.
+- Le varianti dei piatti non sono modificabili nel controllo del piano.
 - `firebase/package.json` usa `firebase` ^12, l'app usa ^13: allineare le due versioni.
 - I test delle regole non girano in CI, solo in locale.
 - Su Windows git segnala la conversione CRLF/LF dei file: valutare un `.gitattributes`.
