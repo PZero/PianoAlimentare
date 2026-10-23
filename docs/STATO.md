@@ -19,9 +19,15 @@
 4. Ruolo nutrizionista con codice e condivisione scelta dal paziente (fase 2).
 
 ## Problemi aperti
-- "Sostituito" è una nota libera non prevista dal modello dati: decidere se aggiungerla al modello (`docs/MODELLO-DATI.md`) o rimuoverla dall'interfaccia.
+- "Sostituito" segna solo lo stato: una nota libera ("ho mangiato X") richiede un campo nuovo nel diario (regole + modello dati).
+- Oggi: il pre-allenamento facoltativo compare come primo "prossimo pasto" da scegliere; valutare di saltarlo se non scelto.
 - Bundle principale di circa 930 kB (precache del service worker circa 1 MB): valutare code splitting delle schermate.
 - Le varianti dei piatti non sono modificabili nel controllo del piano.
 - `firebase/package.json` usa `firebase` ^12, l'app usa ^13: allineare le due versioni.
 - I test delle regole non girano in CI, solo in locale.
 - Su Windows git segnala la conversione CRLF/LF dei file: valutare un `.gitattributes`.
+
+## Decisioni in attesa dell'utente
+- Gioco del peso "Il Giardino": ritmo di misura premiato (ogni 3 giorni?) e chi fissa l'obiettivo di peso.
+- Interruttore manuale chiaro/scuro in Profilo o solo automatico.
+- Nota libera su "Sostituito": sì/no.
