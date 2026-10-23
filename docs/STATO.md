@@ -4,7 +4,7 @@
 
 ## Fatto
 - Requisiti (`docs/REQUISITI.md`), design system (`docs/DESIGN.md`), modello dati (`docs/MODELLO-DATI.md`), formato e procedura di importazione (`docs/IMPORT.md`).
-- Progetto Firebase `piano-alimentare-pz`: Authentication con Google, Firestore (piano Spark).
+- Progetto Firebase `piano-alimentare-pz` creato (piano Spark). **Da fare in console**: creare il database Firestore, abilitare il login Google, aggiungere `pzero.github.io` ai domini autorizzati.
 - Regole Firestore in `firebase/firestore.rules`, con 23 test sull'emulatore (`npm run test:rules` in `firebase/`).
 - PWA in `app/` (Vite, React, TypeScript): Oggi, Settimana con scelte settimanali, Importa piano con controllo e correzione, Modifica piano, Admin, Profilo. Spesa e Peso in arrivo. 35 test Vitest.
 - Pubblicazione su GitHub Pages con `.github/workflows/pages.yml`: https://pzero.github.io/PianoAlimentare/
