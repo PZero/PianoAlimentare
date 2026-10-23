@@ -1,0 +1,97 @@
+rules_version = '2';
+
+// Regole Firestore di PianoAlimentare. Contratto: docs/MODELLO-DATI.md
+// Principio: tutto negato, salvo quanto elencato qui.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function accesso() {
+      return request.auth != null;
+    }
+    function profilo() {
+      return get(/databases/$(database)/documents/utenti/$(request.auth.uid)).data;
+    }
+    // Utente autenticato con documento utenti/{uid} in stato approvato
+    function approvato() {
+      return accesso()
+        && exists(/databases/$(database)/documents/utenti/$(request.auth.uid))
+        && profilo().stato == 'approvato';
+    }
+    // Admin: ruolo impostato a mano in console + approvato
+    function admin() {
+      return approvato() && profilo().ruolo == 'admin';
+    }
+    function proprietarioApprovato(uid) {
+      return approvato() && request.auth.uid == uid;
+    }
+
+    match /utenti/{uid} {
+      allow read: if accesso() && (request.auth.uid == uid || admin());
+
+      // Primo login: solo in attesa e utente
+      allow create: if accesso() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['nome', 'email', 'stato', 'ruolo', 'creatoIl', 'intolleranze'])
+        && request.resource.data.keys().hasAll(['nome', 'email', 'stato', 'ruolo'])
+        && request.resource.data.stato == 'in_attesa'
+        && request.resource.data.ruolo == 'utente'
+        && request.resource.data.nome is string
+        && request.resource.data.email is string
+        && (!('intolleranze' in request.resource.data) || request.resource.data.intolleranze is list);
+
+      allow update: if accesso() && (
+        // il proprietario: mai stato/ruolo
+        (request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['nome', 'intolleranze', 'obiettivoPeso'])
+          && request.resource.data.nome is string
+          && (!('intolleranze' in request.resource.data) || request.resource.data.intolleranze is list))
+        ||
+        // l'admin: solo lo stato degli altri
+        (admin() && request.auth.uid != uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stato'])
+          && request.resource.data.stato in ['in_attesa', 'approvato', 'bloccato'])
+      );
+
+      allow delete: if false;
+
+      // Piani: l'admin puo solo creare
+      match /piani/{pianoId} {
+        function pianoValido() {
+          return request.resource.data.versione == 1
+            && request.resource.data.titolo is string;
+        }
+        allow read, delete: if proprietarioApprovato(uid);
+        allow update: if proprietarioApprovato(uid) && pianoValido();
+        allow create: if (proprietarioApprovato(uid) || admin()) && pianoValido();
+      }
+
+      match /settimane/{settimanaId} {
+        allow read, write: if proprietarioApprovato(uid);
+      }
+
+      match /prodotti/{alimentoId} {
+        allow read, write: if proprietarioApprovato(uid);
+      }
+
+      // Documento = { <pastoId>: 'fatto' | 'sostituito' | 'saltato', ... }
+      match /diario/{giorno} {
+        allow read, delete: if proprietarioApprovato(uid);
+        allow create, update: if proprietarioApprovato(uid)
+          && request.resource.data.values().hasOnly(['fatto', 'sostituito', 'saltato']);
+      }
+
+      // Documento = { kg: numero 20..400 }
+      match /peso/{giorno} {
+        allow read, delete: if proprietarioApprovato(uid);
+        allow create, update: if proprietarioApprovato(uid)
+          && request.resource.data.keys().hasOnly(['kg'])
+          && request.resource.data.kg is number
+          && request.resource.data.kg >= 20 && request.resource.data.kg <= 400;
+      }
+
+      match /spese/{spesaId} {
+        allow read, write: if proprietarioApprovato(uid);
+      }
+    }
+  }
+}
